@@ -1,0 +1,53 @@
+body{
+    font-family: Calibri;
+    background-color: lightgray;
+}
+
+h1{
+    text-align: center;
+    margin: 20px;
+}
+
+p{
+    text-align: center;
+    margin: 0;
+}
+
+input{
+    text-align: center;
+    width: 50px;
+}
+
+input[type='number']::-webkit-inner-spin-button, 
+input[type='number']::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+td{
+    border: 1px solid black;
+    /* padding: 20px; */
+}
+
+td:hover{
+    background-color: darkorchid;
+    cursor: pointer;
+}
+
+button{
+    margin: 50px 10px;
+}
+
+.grid{
+    margin: auto;
+    width: 500px;
+    height: 500px;
+}
+
+.hidden{
+    display: none;
+}
+
+.selected{
+    background-color: darkorchid;
+}
