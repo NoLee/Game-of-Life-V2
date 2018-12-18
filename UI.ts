@@ -1,53 +1,28 @@
 import { GameOfLife } from "./gameOfLife";
 
-var height:number;
-var width:number;
-var globalInterval: any;
+
+var gridCounter=1; //global counter for grids created
+var intervalIDs:number[] = []; //global array for intervals
 
 //** FUNCTIONS FOR EVENT LISTENERS
 $("#drawGrid").click( function (){
-    height = parseInt((<HTMLInputElement>document.getElementById("height")).value);
-    width = parseInt((<HTMLInputElement>document.getElementById("width")).value);
-    $("#gridContainer").show();
-    drawHTMLGrid(height, width, "grid");  
+    let height = parseInt((<HTMLInputElement>document.getElementById("height")).value);
+    let width = parseInt((<HTMLInputElement>document.getElementById("width")).value);
+    $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer'+gridCounter+'" > <table id="grid'+gridCounter+'" class="grid"></table> <p>Generation: <span id="genCount'+gridCounter+'">0</span> </p> <button id="start'+gridCounter+'">Start</button> <button id="stop'+gridCounter+'">Stop</button> </div>');
+    drawHTMLGrid(height, width, "grid"+gridCounter);  
+    createEventListeners(height,width,gridCounter); //create a closure for gridCounter
+    gridCounter++;
 })
 
-$("#start").click(function() {
-    let gameofLife = new GameOfLife(height, width);    
-    globalInterval = setInterval(function(){ nextGeneration(gameofLife) }, 500);
-})
+function createEventListeners(height:number,width:number,ID:number){
+    $("#start" + ID).click(function() {
+        let gameofLife = new GameOfLife(height, width);    
+        intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID) }, 500);
+    })
 
-$("#stop").click(function() {
-    clearInterval(globalInterval);
-})
-
-
-/**
- * Calculate next generation
- */ 
-function nextGeneration(gameOfLife: GameOfLife){
-    // Get the grid state from HTML and set it to the gameoflife grid instance
-    gameOfLife.grid = getHTMLGrid(gameOfLife);
-    // Calculate next generation
-    let nextGen = gameOfLife.nextGeneration();
-    //Redraw HTMl grid
-    redrawHTMLGrid(nextGen, "grid");
-    $("#genCount").html(gameOfLife.generation + "");
-}
-
-/**
- * Redraw the HTML table when needed ( eg when we change the generation)
- */
-function redrawHTMLGrid(grid:number[][], gridID:string){
-    let gridHTML = <HTMLTableElement>document.getElementById(gridID);
-
-    for (let i=0; i<height; i++){
-        for (let j=0; j<width; j++){
-            let cell = gridHTML.rows[i].cells[j];
-            if (grid[i][j]) cell.className = "selected";
-            else cell.className = "";            
-        }
-    }
+    $("#stop"+ID).click(function() {
+        clearInterval(intervalIDs[ID]);
+    })
 }
 
 /**
@@ -55,10 +30,6 @@ function redrawHTMLGrid(grid:number[][], gridID:string){
  */
 function drawHTMLGrid(height:number, width:number, gridID:string ): void{
     let gridHTML = <HTMLTableElement>document.getElementById(gridID);
-    
-    // Clear previous table and stop game of life algorithm
-    gridHTML.innerHTML = "";
-    clearInterval(globalInterval);
 
     // Create html table
     for(let i=0; i<height; i++){
@@ -70,18 +41,31 @@ function drawHTMLGrid(height:number, width:number, gridID:string ): void{
     }
     
     // Onclick a table element, change its class 
-    $(".grid td").click(function(){
+    $("#"+gridID+" td").click(function(){
         if (this.className == "") this.className = "selected";
         else this.className = "";
     });
 }
 
 /**
+ * Calculate next generation
+ */ 
+function nextGeneration(gameOfLife: GameOfLife, gridID:string, generationID:string){
+    // Get the grid state from HTML and set it to the gameoflife grid instance
+    gameOfLife.grid = getHTMLGrid(gridID);
+    // Calculate next generation
+    let nextGen = gameOfLife.nextGeneration();
+    //Redraw HTMl grid
+    redrawHTMLGrid(gameOfLife.height, gameOfLife.width, nextGen, gridID);
+    $("#"+generationID).html(gameOfLife.generation + "");
+}
+
+/**
  * Get the grid state from HTML
  * @returns an array with the grid, cell values are [1] if the cell is selected and [0] if it is not
  */
-function getHTMLGrid(gameofLife:GameOfLife): number[][] {
-    let gridHTML = <HTMLTableElement>document.getElementById("grid");
+function getHTMLGrid(gridID:string): number[][] {
+    let gridHTML = <HTMLTableElement>document.getElementById(gridID);
     let array: number[][] = [];
 
     for (let i = 0, row; row = gridHTML.rows[i]; i++) {
@@ -92,4 +76,19 @@ function getHTMLGrid(gameofLife:GameOfLife): number[][] {
         }  
      }
      return array;
+}
+
+/**
+ * Redraw the HTML table when needed ( eg when we change the generation)
+ */
+function redrawHTMLGrid(height:number, width:number, grid:number[][], gridID:string){
+    let gridHTML = <HTMLTableElement>document.getElementById(gridID);
+
+    for (let i=0; i<height; i++){
+        for (let j=0; j<width; j++){
+            let cell = gridHTML.rows[i].cells[j];
+            if (grid[i][j]) cell.className = "selected";
+            else cell.className = "";            
+        }
+    }
 }
