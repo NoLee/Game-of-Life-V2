@@ -13,7 +13,9 @@ export class GameOfLife{
     isAlive (x:number):number {
         return x;
     }
-    
+    /**
+     * Increments generation counter 
+     */
     incrementGeneration():void{
         this.generation ++;
     }
@@ -55,8 +57,10 @@ export class GameOfLife{
         return nextCellState;
     }
 
+    /**
+     * Calculate next generation and replace the grid with the new one
+     */
     nextGeneration():number[][]{
-        //Calculate next generation to a new array
         this.grid = this.grid.map((row,i) => row.map( (cell,j) => this.calculateNextCellState(i,j)));
         this.incrementGeneration();
         return this.grid;

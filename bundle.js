@@ -2,58 +2,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var gameOfLife_1 = require("./gameOfLife");
-var height;
-var width;
-var globalInterval;
+var gridCounter = 1; //global counter for grids created
+var intervalIDs = []; //global array for intervals
 //** FUNCTIONS FOR EVENT LISTENERS
 $("#drawGrid").click(function () {
-    height = parseInt(document.getElementById("height").value);
-    width = parseInt(document.getElementById("width").value);
-    $("#gridContainer").show();
-    drawHTMLGrid(height, width, "grid");
+    var height = parseInt(document.getElementById("height").value);
+    var width = parseInt(document.getElementById("width").value);
+    //Table template with increasing IDs
+    $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer' + gridCounter + '" > <table id="grid' + gridCounter + '" class="grid"></table> <p>Generation: <span id="genCount' + gridCounter + '">0</span> </p> <button id="start' + gridCounter + '">Start</button> <button id="stop' + gridCounter + '">Stop</button> </div>');
+    drawHTMLGrid(height, width, "grid" + gridCounter);
+    createBtnEventListeners(height, width, gridCounter); //create a closure for gridCounter
+    gridCounter++;
 });
-$("#start").click(function () {
-    var gameofLife = new gameOfLife_1.GameOfLife(height, width);
-    globalInterval = setInterval(function () { nextGeneration(gameofLife); }, 500);
-});
-$("#stop").click(function () {
-    clearInterval(globalInterval);
-});
-/**
- * Calculate next generation
- */
-function nextGeneration(gameOfLife) {
-    // Get the grid state from HTML and set it to the gameoflife grid instance
-    gameOfLife.grid = getHTMLGrid(gameOfLife);
-    // Calculate next generation
-    var nextGen = gameOfLife.nextGeneration();
-    //Redraw HTMl grid
-    redrawHTMLGrid(nextGen, "grid");
-    $("#genCount").html(gameOfLife.generation + "");
-}
-/**
- * Redraw the HTML table when needed ( eg when we change the generation)
- */
-function redrawHTMLGrid(grid, gridID) {
-    var gridHTML = document.getElementById(gridID);
-    for (var i = 0; i < height; i++) {
-        for (var j = 0; j < width; j++) {
-            var cell = gridHTML.rows[i].cells[j];
-            if (grid[i][j])
-                cell.className = "selected";
-            else
-                cell.className = "";
-        }
-    }
+function createBtnEventListeners(height, width, ID) {
+    $("#start" + ID).click(function () {
+        var gameofLife = new gameOfLife_1.GameOfLife(height, width);
+        intervalIDs[ID] = setInterval(function () { nextGeneration(gameofLife, "grid" + ID, "genCount" + ID, ID); }, 500);
+    });
+    $("#stop" + ID).click(function () {
+        clearInterval(intervalIDs[ID]);
+    });
 }
 /**
  * Draw a grid (html table) according to the input values for height and width of user
  */
 function drawHTMLGrid(height, width, gridID) {
     var gridHTML = document.getElementById(gridID);
-    // Clear previous table and stop game of life algorithm
-    gridHTML.innerHTML = "";
-    clearInterval(globalInterval);
     // Create html table
     for (var i = 0; i < height; i++) {
         var row = gridHTML.insertRow(0);
@@ -63,7 +37,7 @@ function drawHTMLGrid(height, width, gridID) {
         }
     }
     // Onclick a table element, change its class 
-    $(".grid td").click(function () {
+    $("#" + gridID + " td").click(function () {
         if (this.className == "")
             this.className = "selected";
         else
@@ -71,11 +45,27 @@ function drawHTMLGrid(height, width, gridID) {
     });
 }
 /**
+ * Calculate next generation
+ */
+function nextGeneration(gameOfLife, gridID, generationID, ID) {
+    // Get the grid state from HTML and set it to the gameoflife grid instance
+    gameOfLife.grid = getHTMLGrid(gridID);
+    var prevGen = gameOfLife.grid;
+    // Calculate next generation
+    var nextGen = gameOfLife.nextGeneration();
+    //If we are at the same generation as before (no more evolution), stop Game of life
+    if (arraysEqual(nextGen, prevGen))
+        clearInterval(intervalIDs[ID]);
+    //Redraw HTMl grid
+    redrawHTMLGrid(gameOfLife.height, gameOfLife.width, nextGen, gridID);
+    $("#" + generationID).html(gameOfLife.generation + "");
+}
+/**
  * Get the grid state from HTML
  * @returns an array with the grid, cell values are [1] if the cell is selected and [0] if it is not
  */
-function getHTMLGrid(gameofLife) {
-    var gridHTML = document.getElementById("grid");
+function getHTMLGrid(gridID) {
+    var gridHTML = document.getElementById(gridID);
     var array = [];
     for (var i = 0, row = void 0; row = gridHTML.rows[i]; i++) {
         array[row.rowIndex] = [];
@@ -88,6 +78,44 @@ function getHTMLGrid(gameofLife) {
     }
     return array;
 }
+/**
+ * Redraw the HTML table when needed (eg when we change the generation)
+ */
+function redrawHTMLGrid(height, width, grid, gridID) {
+    var gridHTML = document.getElementById(gridID);
+    for (var i = 0; i < height; i++) {
+        for (var j = 0; j < width; j++) {
+            var cell = gridHTML.rows[i].cells[j];
+            if (grid[i][j])
+                cell.className = "selected";
+            else
+                cell.className = "";
+        }
+    }
+}
+/**
+ * Checks if two 2D-arrays are the same (contain exactly the same items with the same order)
+ * @param a First array
+ * @param b Second array
+ */
+function arraysEqual(a, b) {
+    if (a === b)
+        return true;
+    if (a == null || b == null)
+        return false;
+    if (a.length != b.length)
+        return false;
+    for (var i = 0; i < a.length; i++) {
+        if (a[i].length != b[i].length)
+            return false;
+        for (var j = 0; j < a[i].length; j++) {
+            if (a[i][j] !== b[i][j])
+                return false;
+        }
+    }
+    return true;
+}
+exports.arraysEqual = arraysEqual;
 
 },{"./gameOfLife":2}],2:[function(require,module,exports){
 "use strict";
@@ -105,6 +133,9 @@ var GameOfLife = /** @class */ (function () {
     GameOfLife.prototype.isAlive = function (x) {
         return x;
     };
+    /**
+     * Increments generation counter
+     */
     GameOfLife.prototype.incrementGeneration = function () {
         this.generation++;
     };
@@ -148,9 +179,11 @@ var GameOfLife = /** @class */ (function () {
         }
         return nextCellState;
     };
+    /**
+     * Calculate next generation and replace the grid with the new one
+     */
     GameOfLife.prototype.nextGeneration = function () {
         var _this = this;
-        //Calculate next generation to a new array
         this.grid = this.grid.map(function (row, i) { return row.map(function (cell, j) { return _this.calculateNextCellState(i, j); }); });
         this.incrementGeneration();
         return this.grid;

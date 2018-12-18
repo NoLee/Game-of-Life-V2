@@ -1,6 +1,5 @@
 import { GameOfLife } from "./gameOfLife";
 
-
 var gridCounter=1; //global counter for grids created
 var intervalIDs:number[] = []; //global array for intervals
 
@@ -8,13 +7,15 @@ var intervalIDs:number[] = []; //global array for intervals
 $("#drawGrid").click( function (){
     let height = parseInt((<HTMLInputElement>document.getElementById("height")).value);
     let width = parseInt((<HTMLInputElement>document.getElementById("width")).value);
+    
+    //Table template with increasing IDs
     $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer'+gridCounter+'" > <table id="grid'+gridCounter+'" class="grid"></table> <p>Generation: <span id="genCount'+gridCounter+'">0</span> </p> <button id="start'+gridCounter+'">Start</button> <button id="stop'+gridCounter+'">Stop</button> </div>');
     drawHTMLGrid(height, width, "grid"+gridCounter);  
-    createEventListeners(height,width,gridCounter); //create a closure for gridCounter
+    createBtnEventListeners(height,width,gridCounter); //create a closure for gridCounter
     gridCounter++;
 })
 
-function createEventListeners(height:number,width:number,ID:number){
+function createBtnEventListeners(height:number,width:number,ID:number){
     $("#start" + ID).click(function() {
         let gameofLife = new GameOfLife(height, width);    
         intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID, ID) }, 500);
@@ -53,7 +54,7 @@ function drawHTMLGrid(height:number, width:number, gridID:string ): void{
 function nextGeneration(gameOfLife: GameOfLife, gridID:string, generationID:string, ID:number){
     // Get the grid state from HTML and set it to the gameoflife grid instance
     gameOfLife.grid = getHTMLGrid(gridID);
-    let prevGen = [...gameOfLife.grid];
+    let prevGen = gameOfLife.grid;
     // Calculate next generation
     let nextGen = gameOfLife.nextGeneration();
 
@@ -84,7 +85,7 @@ function getHTMLGrid(gridID:string): number[][] {
 }
 
 /**
- * Redraw the HTML table when needed ( eg when we change the generation)
+ * Redraw the HTML table when needed (eg when we change the generation)
  */
 function redrawHTMLGrid(height:number, width:number, grid:number[][], gridID:string){
     let gridHTML = <HTMLTableElement>document.getElementById(gridID);
@@ -99,7 +100,7 @@ function redrawHTMLGrid(height:number, width:number, grid:number[][], gridID:str
 }
 
 /**
- * Checks if two 2Darrays are the same (contain exactly the same items with the same order)
+ * Checks if two 2D-arrays are the same (contain exactly the same items with the same order)
  * @param a First array
  * @param b Second array
  */
@@ -114,6 +115,5 @@ export function arraysEqual(a:number[][], b:number[][]) {
             if (a[i][j] !== b[i][j]) return false;
         }      
     }
-    // alert("test");
     return true;
   }
