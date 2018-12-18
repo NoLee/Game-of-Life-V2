@@ -48,7 +48,7 @@ describe("Game of life class has a function that", function() {
     let game  = new GameOfLife(5,5); 
     game.grid = testArray;
 
-    it('greates the next generation array', () => {
+    it('creates the next generation array', () => {
         
         let nextGen =  [[0,0,0,0,0],
                         [0,1,0,0,0],
