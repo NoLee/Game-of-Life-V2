@@ -49,7 +49,7 @@ function drawHTMLGrid(height:number, width:number, gridID:string ): void{
 }
 
 /**
- * Calculate next generation
+ * Calculates and redraws next generation
  */ 
 function nextGeneration(gameOfLife: GameOfLife, gridID:string, generationID:string, ID:number){
     // Get the grid state from HTML and set it to the gameoflife grid instance
