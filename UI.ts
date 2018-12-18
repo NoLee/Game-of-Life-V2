@@ -17,7 +17,7 @@ $("#drawGrid").click( function (){
 function createEventListeners(height:number,width:number,ID:number){
     $("#start" + ID).click(function() {
         let gameofLife = new GameOfLife(height, width);    
-        intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID) }, 500);
+        intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID, ID) }, 500);
     })
 
     $("#stop"+ID).click(function() {
@@ -50,11 +50,16 @@ function drawHTMLGrid(height:number, width:number, gridID:string ): void{
 /**
  * Calculate next generation
  */ 
-function nextGeneration(gameOfLife: GameOfLife, gridID:string, generationID:string){
+function nextGeneration(gameOfLife: GameOfLife, gridID:string, generationID:string, ID:number){
     // Get the grid state from HTML and set it to the gameoflife grid instance
     gameOfLife.grid = getHTMLGrid(gridID);
+    let prevGen = [...gameOfLife.grid];
     // Calculate next generation
     let nextGen = gameOfLife.nextGeneration();
+
+    //If we are at the same generation as before (no more evolution), stop Game of life
+    if (arraysEqual(nextGen,prevGen)) clearInterval(intervalIDs[ID]);
+
     //Redraw HTMl grid
     redrawHTMLGrid(gameOfLife.height, gameOfLife.width, nextGen, gridID);
     $("#"+generationID).html(gameOfLife.generation + "");
@@ -92,3 +97,23 @@ function redrawHTMLGrid(height:number, width:number, grid:number[][], gridID:str
         }
     }
 }
+
+/**
+ * Checks if two 2Darrays are the same (contain exactly the same items with the same order)
+ * @param a First array
+ * @param b Second array
+ */
+export function arraysEqual(a:number[][], b:number[][]) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (let i = 0; i < a.length; i++) {
+        if (a[i].length != b[i].length) return false;
+        for (let j=0; j<a[i].length; j++) {            
+            if (a[i][j] !== b[i][j]) return false;
+        }      
+    }
+    // alert("test");
+    return true;
+  }
