@@ -48,7 +48,7 @@ describe("Game of life class has a function that", function() {
     let game  = new GameOfLife(5,5); 
     game.grid = testArray;
 
-    it('creates the next generation array', () => {
+    it('creates the next generation array (nextGeneration)', () => {
         
         let nextGen =  [[0,0,0,0,0],
                         [0,1,0,0,0],
@@ -60,7 +60,7 @@ describe("Game of life class has a function that", function() {
 });
 
 describe("arraysEqual", function() {
-    it('checks if two arrays are equal', () => {
+    it('checks if two 2D arrays are equal', () => {
         let a= [[1,2,3,4,5,6],[1,2]];
         let b= [[1,2,3,4,5,6],[1,2]];
         let c= [[1,2,3,4,6,7],[1,2]];
