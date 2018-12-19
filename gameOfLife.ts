@@ -46,11 +46,11 @@ export class GameOfLife{
     calculateNextCellState(row:number,col:number){
         let liveNeighbors:number = this.calculateLiveNeighbors(row,col);
         let nextCellState:number;
-        if (this.isAlive(this.grid[row][col])){
+        if (this.isAlive(this.grid[row][col])) {
             if (liveNeighbors<2 || liveNeighbors>3) nextCellState = 0;
             else nextCellState = 1;
         }
-        else{ //cell is dead
+        else { //cell is dead
             if (liveNeighbors === 3) nextCellState = 1;
             else nextCellState = 0;
         }
