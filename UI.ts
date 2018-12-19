@@ -9,7 +9,7 @@ $("#drawGrid").click( function (){
     let width = parseInt((<HTMLInputElement>document.getElementById("width")).value);
     
     //Table template with increasing IDs
-    $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer'+gridCounter+'" > <table id="grid'+gridCounter+'" class="grid"></table> <p>Generation: <span id="genCount'+gridCounter+'">0</span> </p> <button id="start'+gridCounter+'">Start</button> <button id="stop'+gridCounter+'">Stop</button> </div>');
+    $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer'+gridCounter+'" > <table id="grid'+gridCounter+'" class="grid"></table> <p>Generation: <span id="genCount'+gridCounter+'">0</span> </p> <button id="start'+gridCounter+'">Start</button> <button id="stop'+gridCounter+'" class="hidden">Stop</button> <button id="resume'+gridCounter+'" class="hidden">Resume</button> </div>');
     drawHTMLGrid(height, width, "grid"+gridCounter);  
     createBtnEventListeners(height,width,gridCounter); //create a closure for gridCounter
     gridCounter++;
@@ -17,13 +17,35 @@ $("#drawGrid").click( function (){
 
 function createBtnEventListeners(height:number,width:number,ID:number){
     $("#start" + ID).click(function() {
+        $("#stop"+ID).toggle();
+        $("#start"+ID).toggle();
         let gameofLife = new GameOfLife(height, width);    
         intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID, ID) }, 500);
+        createResumeListener(gameofLife);
+        removeEventListenerTD("grid"+ID);
     })
 
     $("#stop"+ID).click(function() {
+        $("#stop"+ID).toggle();
+        $("#resume"+ID).toggle();
         clearInterval(intervalIDs[ID]);
+        createEventListenerTD("grid"+ID);
     })
+
+    function createResumeListener(gameofLife:GameOfLife) {
+        //remove event listener if it has one
+        $("#resume"+ID).off("click");
+
+        $("#resume"+ID).click(function() {
+            $("#stop"+ID).toggle();
+            $("#resume"+ID).toggle();
+            //resume gameoflife
+            console.log(intervalIDs[ID]+" before");
+            intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID, ID) }, 500);
+            console.log(intervalIDs[ID]);
+            removeEventListenerTD("grid"+ID);
+        })
+    }
 }
 
 /**
@@ -39,13 +61,21 @@ function drawHTMLGrid(height:number, width:number, gridID:string ): void{
             let cell= row.insertCell(0);
             cell.innerHTML = "";
         }
-    }
-    
-    // Onclick a table element, change its class 
+    }   
+
+    createEventListenerTD(gridID);
+}
+
+// Onclick a table element, change its class 
+function createEventListenerTD(gridID:string) {
     $("#"+gridID+" td").click(function(){
         if (this.className == "") this.className = "selected";
         else this.className = "";
     });
+};
+
+function removeEventListenerTD(gridID:string) {
+    $("#"+gridID+" td").off("click");
 }
 
 /**
@@ -59,7 +89,14 @@ function nextGeneration(gameOfLife: GameOfLife, gridID:string, generationID:stri
     let nextGen = gameOfLife.nextGeneration();
 
     //If we are at the same generation as before (no more evolution), stop Game of life
-    if (arraysEqual(nextGen,prevGen)) clearInterval(intervalIDs[ID]);
+    if (arraysEqual(nextGen,prevGen)) {
+        clearInterval(intervalIDs[ID]);
+        $("#stop"+ID).hide();
+        $("#start"+ID).show();
+        $("#resume"+ID).hide();
+        createEventListenerTD("grid"+ID);
+        // return false;
+    } 
 
     //Redraw HTMl grid
     redrawHTMLGrid(gameOfLife.height, gameOfLife.width, nextGen, gridID);
