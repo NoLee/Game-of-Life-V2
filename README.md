@@ -6,5 +6,5 @@ Added jasmine tests to ensure the algorith is running correct.
 
 Instructions:
 - Download dependencies with with "npm install" (bootstrap and jquery)
-- If you want to run in the browser (recommended), use a module bundler tool (like *browserify* or webpack) to budle Typescript fils into one Javascript file (bundle.js)
+- If you want to run in the browser (recommended), use a module bundler tool (like *browserify* or webpack) to bundle Typescript files into one Javascript file (bundle.js)
 - If you want to run tests in the browser, do the same bundling process as above.
