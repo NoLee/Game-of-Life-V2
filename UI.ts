@@ -9,7 +9,13 @@ $("#drawGrid").click( function (){
     let width = parseInt((<HTMLInputElement>document.getElementById("width")).value);
     
     //Table template with increasing IDs
-    $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer'+gridCounter+'" > <table id="grid'+gridCounter+'" class="grid"></table> <p>Generation: <span id="genCount'+gridCounter+'">0</span> </p> <button id="start'+gridCounter+'">Start</button> <button id="stop'+gridCounter+'" class="hidden">Stop</button> <button id="resume'+gridCounter+'" class="hidden">Resume</button> </div>');
+    $(".gridContainer").append('<div class="col-sm text-center gridCont " id="gridContainer'+gridCounter+'" > <table id="grid'+gridCounter+
+        '"class="grid"></table> <p>Generation: <span id="genCount'+gridCounter+'">0</span> </p> '+
+        '<button id="start'+gridCounter+'">Start</button> '+
+        '<button id="stop'+gridCounter+'" class="hidden">Stop</button>'+
+        '<button id="resume'+gridCounter+'" class="hidden">Resume</button> '+
+        '<button id="clear'+gridCounter+'">Clear</button>'+
+        '<button id="delete'+gridCounter+'">Delete Grid</button> </div>');
     drawHTMLGrid(height, width, "grid"+gridCounter);  
     createBtnEventListeners(height,width,gridCounter); //create a closure for gridCounter
     gridCounter++;
@@ -30,6 +36,22 @@ function createBtnEventListeners(height:number,width:number,ID:number){
         $("#resume"+ID).toggle();
         clearInterval(intervalIDs[ID]);
         createEventListenerTD("grid"+ID);
+    })
+
+    $("#clear"+ID).click(function() {
+        let emptyGrid = initArray(height,width);
+        clearInterval(intervalIDs[ID]);
+        redrawHTMLGrid(height,width,emptyGrid,"grid"+ID);
+        $("#stop"+ID).hide();
+        $("#start"+ID).show();
+        $("#resume"+ID).hide();
+        createEventListenerTD("grid"+ID);
+    })
+
+    $("#delete"+ID).click(function() {
+        $("#gridContainer"+ID).hide();
+        clearInterval(intervalIDs[ID]);
+        // createEventListenerTD("grid"+ID);
     })
 
     function createResumeListener(gameofLife:GameOfLife) {
@@ -153,4 +175,15 @@ export function arraysEqual(a:number[][], b:number[][]) {
         }      
     }
     return true;
+  }
+
+  function initArray(h:number,w:number) {
+    let array:number[][] =[];
+    for (let i = 0; i < h; i++) {
+        array[i]=[];
+        for (let j=0; j<w; j++) {            
+            array[i][j]=0;
+        }      
+    }
+    return array;
   }
