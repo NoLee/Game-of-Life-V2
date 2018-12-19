@@ -4,4 +4,6 @@ In this version you can dynamically create and play with multiple game of life's
 
 Created jasmine tests to ensure the algorith is correct.
 
-Download dependencies with with "npm install".
+Instructions:
+- Download dependencies with with "npm install". (bootstrap and jquery)
+- If you want to run in the browser (recommended), use a module bundler tool (like *browserify* or webpack)
