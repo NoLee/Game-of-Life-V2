@@ -20,3 +20,5 @@ spec/spec/specbundle\.js
 spec/spec/testSpec\.js
 
 lib/
+
+spec/spec/testSpec\.js\.map
