@@ -42,10 +42,11 @@ function createBtnEventListeners(height:number,width:number,ID:number){
         let emptyGrid = initArray(height,width);
         clearInterval(intervalIDs[ID]);
         redrawHTMLGrid(height,width,emptyGrid,"grid"+ID);
+        if ($("#stop"+ID).is(":visible")) createEventListenerTD("grid"+ID);
         $("#stop"+ID).hide();
         $("#start"+ID).show();
         $("#resume"+ID).hide();
-        createEventListenerTD("grid"+ID);
+        
     })
 
     $("#delete"+ID).click(function() {
