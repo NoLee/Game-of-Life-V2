@@ -1,7 +1,7 @@
 import { GameOfLife } from "./gameOfLife";
 
-var gridCounter=1; //global counter for grids created
-var intervalIDs:number[] = []; //global array for intervals
+var gridCounter=1; // global counter for grids created
+var intervalIDs:number[] = []; // global array for intervals
 
 //** FUNCTIONS FOR EVENT LISTENERS
 $("#drawGrid").click( function (){
@@ -17,7 +17,7 @@ $("#drawGrid").click( function (){
         '<button id="clear'+gridCounter+'">Clear</button>'+
         '<button id="delete'+gridCounter+'">Delete Grid</button> </div>');
     drawHTMLGrid(height, width, "grid"+gridCounter);  
-    createBtnEventListeners(height,width,gridCounter); //create a closure for gridCounter
+    createBtnEventListeners(height,width,gridCounter); // create a closure for gridCounter
     gridCounter++;
 })
 
@@ -27,8 +27,8 @@ function createBtnEventListeners(height:number,width:number,ID:number){
         $("#start"+ID).toggle();
         let gameofLife = new GameOfLife(height, width);    
         intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID, ID) }, 500);
-        createResumeListener(gameofLife);
-        removeEventListenerTD("grid"+ID);
+        createResumeListener(gameofLife); // resume btn must know the gameoflife Obgject
+        removeEventListenerTD("grid"+ID); // user cannot click on grid
     })
 
     $("#stop"+ID).click(function() {
@@ -42,7 +42,7 @@ function createBtnEventListeners(height:number,width:number,ID:number){
         let emptyGrid = initArray(height,width);
         clearInterval(intervalIDs[ID]);
         redrawHTMLGrid(height,width,emptyGrid,"grid"+ID);
-        if ($("#stop"+ID).is(":visible")) createEventListenerTD("grid"+ID);
+        if ($("#stop"+ID).is(":visible")) createEventListenerTD("grid"+ID); // if "clean" btn is pressed when the game is running, stop the game and allow user to click on grid
         $("#stop"+ID).hide();
         $("#start"+ID).show();
         $("#resume"+ID).hide();
@@ -52,7 +52,6 @@ function createBtnEventListeners(height:number,width:number,ID:number){
     $("#delete"+ID).click(function() {
         $("#gridContainer"+ID).hide();
         clearInterval(intervalIDs[ID]);
-        // createEventListenerTD("grid"+ID);
     })
 
     function createResumeListener(gameofLife:GameOfLife) {
@@ -62,10 +61,10 @@ function createBtnEventListeners(height:number,width:number,ID:number){
         $("#resume"+ID).click(function() {
             $("#stop"+ID).toggle();
             $("#resume"+ID).toggle();
-            //resume gameoflife
-            console.log(intervalIDs[ID]+" before");
+
+            //resume gameoflife 
             intervalIDs[ID] = setInterval(function(){ nextGeneration(gameofLife,"grid"+ID,"genCount"+ID, ID) }, 500);
-            console.log(intervalIDs[ID]);
+
             removeEventListenerTD("grid"+ID);
         })
     }
@@ -89,7 +88,9 @@ function drawHTMLGrid(height:number, width:number, gridID:string ): void{
     createEventListenerTD(gridID);
 }
 
-// Onclick a table element, change its class 
+/**
+ * Onclick a table element, change its class 
+ */ 
 function createEventListenerTD(gridID:string) {
     $("#"+gridID+" td").click(function(){
         if (this.className == "") this.className = "selected";
@@ -176,9 +177,14 @@ export function arraysEqual(a:number[][], b:number[][]) {
         }      
     }
     return true;
-  }
+}
 
-  function initArray(h:number,w:number) {
+/**
+ * Initialize 2d array with zeros
+ * @param h height of array (lines)
+ * @param w width of array (columns)
+ */
+function initArray(h:number,w:number) {
     let array:number[][] =[];
     for (let i = 0; i < h; i++) {
         array[i]=[];
@@ -187,4 +193,4 @@ export function arraysEqual(a:number[][], b:number[][]) {
         }      
     }
     return array;
-  }
+}
